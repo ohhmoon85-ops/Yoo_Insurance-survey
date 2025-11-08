@@ -1,0 +1,1114 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>나무파트너스 - 보험 건강 점수 진단</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+            -webkit-touch-callout: none;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans KR', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            -webkit-user-select: none;
+            user-select: none;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 600px;
+            width: 100%;
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .progress-bar {
+            height: 6px;
+            background: #e0e0e0;
+            position: relative;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .content {
+            padding: 40px 30px;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .page {
+            display: none;
+        }
+
+        .page.active {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Intro Page */
+        .intro-content {
+            text-align: center;
+        }
+
+        .intro-icon {
+            font-size: 80px;
+            margin-bottom: 20px;
+        }
+
+        .intro-content h2 {
+            font-size: 28px;
+            color: #333;
+            margin-bottom: 15px;
+        }
+
+        .intro-content p {
+            font-size: 16px;
+            color: #666;
+            line-height: 1.6;
+            margin-bottom: 30px;
+        }
+
+        .benefit-list {
+            text-align: left;
+            margin: 30px 0;
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+        }
+
+        .benefit-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+            font-size: 15px;
+            color: #555;
+        }
+
+        .benefit-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .benefit-item::before {
+            content: "✓";
+            display: inline-block;
+            width: 24px;
+            height: 24px;
+            background: #667eea;
+            color: white;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 24px;
+            margin-right: 12px;
+            flex-shrink: 0;
+        }
+
+        /* Question Styles */
+        .question {
+            margin-bottom: 30px;
+        }
+
+        .question-number {
+            color: #667eea;
+            font-weight: bold;
+            font-size: 14px;
+            margin-bottom: 8px;
+        }
+
+        .question-text {
+            font-size: 18px;
+            color: #333;
+            margin-bottom: 20px;
+            font-weight: 500;
+        }
+
+        .question-category {
+            display: inline-block;
+            background: #e8eaf6;
+            color: #667eea;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            margin-bottom: 15px;
+        }
+
+        input[type="number"],
+        input[type="text"],
+        input[type="tel"] {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            -webkit-user-select: text;
+            user-select: text;
+            -webkit-appearance: none;
+            appearance: none;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .radio-group,
+        .checkbox-group {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .radio-option,
+        .checkbox-option {
+            position: relative;
+            padding: 15px 20px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: white;
+            -webkit-tap-highlight-color: rgba(102, 126, 234, 0.1);
+            touch-action: manipulation;
+        }
+
+        .radio-option:active,
+        .checkbox-option:active {
+            transform: scale(0.98);
+        }
+
+        .radio-option:hover,
+        .checkbox-option:hover {
+            border-color: #667eea;
+            background: #f8f9ff;
+        }
+
+        .radio-option input,
+        .checkbox-option input {
+            position: absolute;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .radio-option.selected,
+        .checkbox-option.selected {
+            border-color: #667eea;
+            background: #f0f3ff;
+        }
+
+        .radio-option label,
+        .checkbox-option label {
+            cursor: pointer;
+            display: block;
+            font-size: 15px;
+            color: #333;
+            pointer-events: none;
+        }
+
+        /* Buttons */
+        .btn {
+            width: 100%;
+            padding: 16px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 20px;
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
+        }
+
+        .btn:active {
+            transform: translateY(-1px);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-primary:active {
+            transform: translateY(0);
+        }
+
+        .btn-secondary {
+            background: white;
+            color: #667eea;
+            border: 2px solid #667eea;
+        }
+
+        .btn-secondary:hover {
+            background: #f8f9ff;
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .btn-group .btn {
+            margin-top: 0;
+        }
+
+        /* Loading Page */
+        .loading-content {
+            text-align: center;
+            padding: 40px 20px;
+        }
+
+        .loader {
+            width: 80px;
+            height: 80px;
+            border: 8px solid #f3f3f3;
+            border-top: 8px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 30px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .loading-text {
+            font-size: 18px;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .loading-subtext {
+            font-size: 14px;
+            color: #999;
+        }
+
+        /* Result Page */
+        .result-content {
+            text-align: center;
+        }
+
+        .score-circle {
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 30px auto;
+            box-shadow: 0 10px 40px rgba(102, 126, 234, 0.3);
+        }
+
+        .score-number {
+            font-size: 64px;
+            font-weight: bold;
+            color: white;
+        }
+
+        .score-total {
+            font-size: 24px;
+            color: white;
+            opacity: 0.8;
+        }
+
+        .result-comment {
+            font-size: 20px;
+            color: #333;
+            margin: 30px 0;
+            line-height: 1.6;
+            font-weight: 500;
+        }
+
+        .result-details {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 30px 0;
+            text-align: left;
+        }
+
+        .detail-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .detail-item:last-child {
+            border-bottom: none;
+        }
+
+        .detail-label {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .detail-value {
+            color: #333;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        /* Consultation Form */
+        .consultation-form {
+            background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+            padding: 30px;
+            border-radius: 15px;
+            margin-top: 30px;
+        }
+
+        .consultation-form h3 {
+            font-size: 20px;
+            color: #333;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 14px;
+            color: #555;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid white;
+            border-radius: 8px;
+            font-size: 15px;
+            background: white;
+            -webkit-appearance: none;
+            appearance: none;
+            -webkit-user-select: text;
+            user-select: text;
+        }
+
+        .form-group select {
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23333' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            padding-right: 36px;
+        }
+
+        /* Mobile Optimization */
+        @media (max-width: 480px) {
+            .container {
+                border-radius: 0;
+            }
+
+            .header {
+                padding: 20px;
+            }
+
+            .header h1 {
+                font-size: 20px;
+            }
+
+            .content {
+                padding: 30px 20px;
+            }
+
+            .intro-content h2 {
+                font-size: 24px;
+            }
+
+            .score-circle {
+                width: 160px;
+                height: 160px;
+            }
+
+            .score-number {
+                font-size: 48px;
+            }
+
+            .btn-group {
+                flex-direction: column;
+            }
+        }
+
+        /* Success Message */
+        .success-message {
+            text-align: center;
+            padding: 40px 20px;
+        }
+
+        .success-icon {
+            font-size: 80px;
+            margin-bottom: 20px;
+        }
+
+        .success-message h3 {
+            font-size: 24px;
+            color: #333;
+            margin-bottom: 15px;
+        }
+
+        .success-message p {
+            font-size: 16px;
+            color: #666;
+            line-height: 1.6;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🌳 나무파트너스</h1>
+            <p>보험 건강 점수 진단</p>
+        </div>
+        <div class="progress-bar">
+            <div class="progress-fill" id="progressFill"></div>
+        </div>
+        <div class="content">
+            <!-- Intro Page -->
+            <div class="page active" id="introPage">
+                <div class="intro-content">
+                    <div class="intro-icon">🔍</div>
+                    <h2>내 보험, 건강한가요?</h2>
+                    <p>3분 만에 확인하는<br>나의 보험 건강 점수</p>
+                    
+                    <div class="benefit-list">
+                        <div class="benefit-item">10개의 간단한 질문으로 즉시 진단</div>
+                        <div class="benefit-item">나만의 보험 건강 점수 확인</div>
+                        <div class="benefit-item">보험료 누수 포인트 발견</div>
+                        <div class="benefit-item">전문가의 무료 상세 리포트 제공</div>
+                    </div>
+
+                    <button class="btn btn-primary" id="startBtn">
+                        진단 시작하기 →
+                    </button>
+                </div>
+            </div>
+
+            <!-- Survey Page -->
+            <div class="page" id="surveyPage">
+                <div id="questionContainer"></div>
+                
+                <div class="btn-group">
+                    <button class="btn btn-secondary" id="prevBtn" style="display: none;">
+                        ← 이전
+                    </button>
+                    <button class="btn btn-primary" id="nextBtn">
+                        다음 →
+                    </button>
+                </div>
+            </div>
+
+            <!-- Loading Page -->
+            <div class="page" id="loadingPage">
+                <div class="loading-content">
+                    <div class="loader"></div>
+                    <div class="loading-text">점수를 분석하고 있습니다...</div>
+                    <div class="loading-subtext">잠시만 기다려주세요</div>
+                </div>
+            </div>
+
+            <!-- Result Page -->
+            <div class="page" id="resultPage">
+                <div class="result-content">
+                    <div class="score-circle">
+                        <div>
+                            <div class="score-number" id="finalScore">0</div>
+                            <div class="score-total">/100점</div>
+                        </div>
+                    </div>
+                    
+                    <div class="result-comment" id="resultComment"></div>
+                    
+                    <div class="result-details">
+                        <div class="detail-item">
+                            <span class="detail-label">📋 핵심 보장</span>
+                            <span class="detail-value" id="score-a">0점</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">🔍 보장 중복/누수</span>
+                            <span class="detail-value" id="score-b">0점</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">💰 보험료 적정성</span>
+                            <span class="detail-value" id="score-c">0점</span>
+                        </div>
+                    </div>
+
+                    <div class="consultation-form">
+                        <h3>📞 무료 상세 리포트 받기</h3>
+                        <p style="font-size: 14px; color: #666; text-align: center; margin-bottom: 20px;">
+                            전문가가 회원님의 보험을 직접 분석해드립니다
+                        </p>
+                        
+                        <div class="form-group">
+                            <label>이름 *</label>
+                            <input type="text" id="consultName" placeholder="홍길동" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>연락처 *</label>
+                            <input type="tel" id="consultPhone" placeholder="010-1234-5678" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>상담 가능 시간</label>
+                            <select id="consultTime">
+                                <option value="오전 (9시-12시)">오전 (9시-12시)</option>
+                                <option value="오후 (12시-6시)">오후 (12시-6시)</option>
+                                <option value="저녁 (6시-9시)">저녁 (6시-9시)</option>
+                                <option value="시간 무관">시간 무관</option>
+                            </select>
+                        </div>
+
+                        <button class="btn btn-primary" id="consultBtn">
+                            무료 리포트 신청하기
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Success Page -->
+            <div class="page" id="successPage">
+                <div class="success-message">
+                    <div class="success-icon">✅</div>
+                    <h3>신청이 완료되었습니다!</h3>
+                    <p>
+                        영업일 기준 1-2일 내에<br>
+                        전문가가 직접 연락드리겠습니다.<br><br>
+                        나무파트너스와 함께<br>
+                        더 건강한 보험 관리를 시작하세요!
+                    </p>
+                    <button class="btn btn-primary" id="restartBtn" style="margin-top: 30px;">
+                        처음으로 돌아가기
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Survey Data
+        const questions = [
+            {
+                id: 'q1',
+                category: '기본 정보',
+                text: '만 나이가 어떻게 되시나요?',
+                type: 'number',
+                placeholder: '예: 35',
+                required: true
+            },
+            {
+                id: 'q2',
+                category: '기본 정보',
+                text: '성별을 선택해주세요',
+                type: 'radio',
+                options: ['남성', '여성'],
+                required: true
+            },
+            {
+                id: 'q3',
+                category: '기본 정보',
+                text: '월 소득 구간을 선택해주세요',
+                type: 'radio',
+                options: [
+                    '300만 원 미만',
+                    '300만 원 ~ 500만 원',
+                    '500만 원 ~ 700만 원',
+                    '700만 원 이상'
+                ],
+                required: false
+            },
+            {
+                id: 'q4',
+                category: 'A. 핵심 보장 점검',
+                text: '암 진단비 보장 금액은 얼마인가요?',
+                type: 'radio',
+                options: [
+                    '보장 없음',
+                    '1천만 원 미만',
+                    '1천만 원 ~ 3천만 원',
+                    '3천만 원 ~ 5천만 원',
+                    '5천만 원 이상'
+                ],
+                required: true,
+                scoring: {
+                    category: 'A',
+                    points: {
+                        '보장 없음': 0,
+                        '1천만 원 미만': 5,
+                        '1천만 원 ~ 3천만 원': 8,
+                        '3천만 원 ~ 5천만 원': 12,
+                        '5천만 원 이상': 15
+                    }
+                }
+            },
+            {
+                id: 'q5',
+                category: 'A. 핵심 보장 점검',
+                text: '뇌/심장 2대 질환 진단비 보장 금액은 얼마인가요?',
+                type: 'radio',
+                options: [
+                    '보장 없음',
+                    '1천만 원 미만',
+                    '1천만 원 ~ 3천만 원',
+                    '3천만 원 ~ 5천만 원',
+                    '5천만 원 이상'
+                ],
+                required: true,
+                scoring: {
+                    category: 'A',
+                    points: {
+                        '보장 없음': 0,
+                        '1천만 원 미만': 5,
+                        '1천만 원 ~ 3천만 원': 8,
+                        '3천만 원 ~ 5천만 원': 12,
+                        '5천만 원 이상': 15
+                    }
+                }
+            },
+            {
+                id: 'q6',
+                category: 'A. 핵심 보장 점검',
+                text: '실손의료비 보험에 가입되어 있나요?',
+                type: 'radio',
+                options: ['예', '아니오'],
+                required: true,
+                scoring: {
+                    category: 'A',
+                    points: {
+                        '예': 10,
+                        '아니오': 0
+                    }
+                }
+            },
+            {
+                id: 'q7',
+                category: 'B. 보장 중복/누수 점검',
+                text: '가입한 보험 중, 순수 "사망" 보장 보험이 2개 이상인가요?',
+                type: 'radio',
+                options: ['예', '아니오', '잘 모르겠음'],
+                required: true,
+                scoring: {
+                    category: 'B',
+                    points: {
+                        '예': 0,
+                        '아니오': 15,
+                        '잘 모르겠음': 5
+                    }
+                }
+            },
+            {
+                id: 'q8',
+                category: 'B. 보장 중복/누수 점검',
+                text: '월 보험료 중 "갱신형 특약"이 차지하는 비중을 알고 있나요?',
+                type: 'radio',
+                options: ['잘 모름', '30% 미만', '30% 이상'],
+                required: true,
+                scoring: {
+                    category: 'B',
+                    points: {
+                        '잘 모름': 0,
+                        '30% 미만': 15,
+                        '30% 이상': 5
+                    }
+                }
+            },
+            {
+                id: 'q9',
+                category: 'C. 보험료 적정성 점검',
+                text: '매달 내는 총 보험료는 얼마인가요?',
+                type: 'radio',
+                options: [
+                    '10만 원 미만',
+                    '10만 원 ~ 20만 원',
+                    '20만 원 ~ 30만 원',
+                    '30만 원 ~ 40만 원',
+                    '40만 원 이상'
+                ],
+                required: true,
+                scoring: {
+                    category: 'C',
+                    income_based: true
+                }
+            }
+        ];
+
+        // State
+        let currentQuestion = 0;
+        let answers = {};
+        let scores = { A: 0, B: 0, C: 0 };
+
+        // Initialize event listeners when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeEventListeners();
+        });
+
+        function initializeEventListeners() {
+            // Start button
+            const startBtn = document.getElementById('startBtn');
+            if (startBtn) {
+                startBtn.addEventListener('click', startSurvey);
+                startBtn.addEventListener('touchstart', function(e) {
+                    e.preventDefault();
+                    startSurvey();
+                }, { passive: false });
+            }
+
+            // Next button
+            const nextBtn = document.getElementById('nextBtn');
+            if (nextBtn) {
+                nextBtn.addEventListener('click', nextQuestion);
+                nextBtn.addEventListener('touchstart', function(e) {
+                    e.preventDefault();
+                    nextQuestion();
+                }, { passive: false });
+            }
+
+            // Previous button
+            const prevBtn = document.getElementById('prevBtn');
+            if (prevBtn) {
+                prevBtn.addEventListener('click', prevQuestion);
+                prevBtn.addEventListener('touchstart', function(e) {
+                    e.preventDefault();
+                    prevQuestion();
+                }, { passive: false });
+            }
+
+            // Consultation button
+            const consultBtn = document.getElementById('consultBtn');
+            if (consultBtn) {
+                consultBtn.addEventListener('click', submitConsultation);
+                consultBtn.addEventListener('touchstart', function(e) {
+                    e.preventDefault();
+                    submitConsultation();
+                }, { passive: false });
+            }
+
+            // Restart button
+            const restartBtn = document.getElementById('restartBtn');
+            if (restartBtn) {
+                restartBtn.addEventListener('click', function() {
+                    location.reload();
+                });
+                restartBtn.addEventListener('touchstart', function(e) {
+                    e.preventDefault();
+                    location.reload();
+                }, { passive: false });
+            }
+        }
+
+        // Initialize
+        function startSurvey() {
+            showPage('surveyPage');
+            updateProgress();
+            renderQuestion();
+        }
+
+        function showPage(pageId) {
+            document.querySelectorAll('.page').forEach(page => {
+                page.classList.remove('active');
+            });
+            document.getElementById(pageId).classList.add('active');
+        }
+
+        function updateProgress() {
+            const progress = ((currentQuestion) / questions.length) * 100;
+            document.getElementById('progressFill').style.width = progress + '%';
+        }
+
+        function renderQuestion() {
+            const question = questions[currentQuestion];
+            const container = document.getElementById('questionContainer');
+            
+            let html = `
+                <div class="question">
+                    <div class="question-number">질문 ${currentQuestion + 1} / ${questions.length}</div>
+                    <div class="question-category">${question.category}</div>
+                    <div class="question-text">${question.text}</div>
+            `;
+
+            if (question.type === 'number') {
+                html += `<input type="number" id="answer" placeholder="${question.placeholder}" min="0" max="120">`;
+            } else if (question.type === 'radio') {
+                html += `<div class="radio-group" id="radioGroup">`;
+                question.options.forEach((option, index) => {
+                    const checked = answers[question.id] === option ? 'selected' : '';
+                    html += `
+                        <div class="radio-option ${checked}" data-value="${option}" data-index="${index}">
+                            <input type="radio" name="q${currentQuestion}" value="${option}" id="opt${index}" ${checked ? 'checked' : ''}>
+                            <label for="opt${index}">${option}</label>
+                        </div>
+                    `;
+                });
+                html += `</div>`;
+            }
+
+            html += `</div>`;
+            container.innerHTML = html;
+
+            // Pre-fill answer if exists
+            if (answers[question.id] && question.type === 'number') {
+                document.getElementById('answer').value = answers[question.id];
+            }
+
+            // Add event listeners for radio options (iOS compatible)
+            if (question.type === 'radio') {
+                const radioOptions = document.querySelectorAll('.radio-option');
+                radioOptions.forEach(option => {
+                    // Prevent default touch behavior
+                    option.addEventListener('touchstart', function(e) {
+                        e.preventDefault();
+                        const value = this.getAttribute('data-value');
+                        selectRadio(value);
+                    }, { passive: false });
+
+                    // Click event for desktop
+                    option.addEventListener('click', function(e) {
+                        const value = this.getAttribute('data-value');
+                        selectRadio(value);
+                    });
+                });
+            }
+
+            // Update buttons
+            document.getElementById('prevBtn').style.display = currentQuestion > 0 ? 'block' : 'none';
+            document.getElementById('nextBtn').textContent = currentQuestion === questions.length - 1 ? '결과 보기' : '다음 →';
+        }
+
+        function selectRadio(value) {
+            const container = document.getElementById('radioGroup');
+            if (!container) return;
+            
+            const question = questions[currentQuestion];
+            
+            // Remove all selected classes
+            container.querySelectorAll('.radio-option').forEach(opt => {
+                opt.classList.remove('selected');
+            });
+            
+            // Add selected class to clicked option
+            const selectedOption = container.querySelector(`[data-value="${value}"]`);
+            if (selectedOption) {
+                selectedOption.classList.add('selected');
+                const input = selectedOption.querySelector('input');
+                if (input) input.checked = true;
+            }
+            
+            // Store answer
+            answers[question.id] = value;
+        }
+
+        function nextQuestion() {
+            const question = questions[currentQuestion];
+            let answer = null;
+
+            if (question.type === 'number') {
+                answer = document.getElementById('answer').value;
+            } else if (question.type === 'radio') {
+                const selected = document.querySelector('input[name="q' + currentQuestion + '"]:checked');
+                answer = selected ? selected.value : null;
+            }
+
+            if (question.required && (!answer || answer === '')) {
+                alert('답변을 선택해주세요.');
+                return;
+            }
+
+            if (answer) {
+                answers[question.id] = answer;
+            }
+
+            if (currentQuestion < questions.length - 1) {
+                currentQuestion++;
+                updateProgress();
+                renderQuestion();
+            } else {
+                // Show loading and calculate results
+                showLoading();
+            }
+        }
+
+        function prevQuestion() {
+            if (currentQuestion > 0) {
+                currentQuestion--;
+                updateProgress();
+                renderQuestion();
+            }
+        }
+
+        function showLoading() {
+            showPage('loadingPage');
+            setTimeout(() => {
+                calculateScore();
+                showResults();
+            }, 2000);
+        }
+
+        function calculateScore() {
+            scores = { A: 0, B: 0, C: 0 };
+
+            questions.forEach(q => {
+                if (q.scoring) {
+                    const answer = answers[q.id];
+                    
+                    if (q.scoring.income_based) {
+                        // Q9: 보험료 적정성 계산
+                        const income = answers.q3;
+                        const premium = answer;
+                        
+                        let incomeValue = 0;
+                        if (income === '300만 원 미만') incomeValue = 250;
+                        else if (income === '300만 원 ~ 500만 원') incomeValue = 400;
+                        else if (income === '500만 원 ~ 700만 원') incomeValue = 600;
+                        else if (income === '700만 원 이상') incomeValue = 800;
+                        
+                        let premiumValue = 0;
+                        if (premium === '10만 원 미만') premiumValue = 7.5;
+                        else if (premium === '10만 원 ~ 20만 원') premiumValue = 15;
+                        else if (premium === '20만 원 ~ 30만 원') premiumValue = 25;
+                        else if (premium === '30만 원 ~ 40만 원') premiumValue = 35;
+                        else if (premium === '40만 원 이상') premiumValue = 45;
+                        
+                        let ratio = incomeValue > 0 ? (premiumValue / incomeValue) * 100 : 15;
+                        
+                        if (ratio < 8) scores.C = 30;
+                        else if (ratio < 12) scores.C = 20;
+                        else if (ratio < 15) scores.C = 10;
+                        else scores.C = 0;
+                        
+                    } else {
+                        scores[q.scoring.category] += q.scoring.points[answer] || 0;
+                    }
+                }
+            });
+        }
+
+        function showResults() {
+            const totalScore = scores.A + scores.B + scores.C;
+            
+            document.getElementById('finalScore').textContent = totalScore;
+            document.getElementById('score-a').textContent = scores.A + '점';
+            document.getElementById('score-b').textContent = scores.B + '점';
+            document.getElementById('score-c').textContent = scores.C + '점';
+
+            let comment = '';
+            if (totalScore >= 80) {
+                comment = '✨ 훌륭합니다! 보험을 현명하게 관리하고 계시네요. 지금처럼 정기적인 점검만 유지하시면 됩니다.';
+            } else if (totalScore >= 50) {
+                comment = '⚠️ 잘하고 계시지만, 개선이 필요한 부분이 보입니다. 특히 핵심 보장이나 보험료 누수 부분을 점검해보세요.';
+            } else {
+                comment = '🚨 보험료 누수가 의심됩니다. 지금 바로 전문가의 진단을 받아보시는 것을 강력히 권장드립니다.';
+            }
+
+            document.getElementById('resultComment').textContent = comment;
+            showPage('resultPage');
+        }
+
+        function submitConsultation() {
+            const name = document.getElementById('consultName').value;
+            const phone = document.getElementById('consultPhone').value;
+            const time = document.getElementById('consultTime').value;
+
+            if (!name || !phone) {
+                alert('이름과 연락처를 입력해주세요.');
+                return;
+            }
+
+            // Prepare data for submission
+            const consultData = {
+                timestamp: new Date().toISOString(),
+                name: name,
+                phone: phone,
+                preferredTime: time,
+                score: {
+                    total: scores.A + scores.B + scores.C,
+                    coreProtection: scores.A,
+                    duplication: scores.B,
+                    affordability: scores.C
+                },
+                answers: answers
+            };
+
+            // Log to console (실제 환경에서는 Google Sheets API나 백엔드로 전송)
+            console.log('상담 신청 데이터:', consultData);
+
+            // TODO: Google Sheets API 연동 또는 백엔드 전송
+            // sendToGoogleSheets(consultData);
+
+            // Show success page
+            showPage('successPage');
+        }
+
+        // Optional: Google Sheets API 연동 함수 (구현 필요)
+        function sendToGoogleSheets(data) {
+            // Google Sheets API를 사용하여 데이터 전송
+            // 또는 백엔드 API 엔드포인트로 POST 요청
+            
+            // 예시 (실제 구현 필요):
+            // fetch('YOUR_GOOGLE_APPS_SCRIPT_URL', {
+            //     method: 'POST',
+            //     body: JSON.stringify(data),
+            //     headers: { 'Content-Type': 'application/json' }
+            // });
+        }
+    </script>
+</body>
+</html>
